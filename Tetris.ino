@@ -563,8 +563,17 @@ class Game {
       block_arg.get_x_arr(x_arr_arg);
       block_arg.get_y_arr(y_arr_arg);
       for (int i = 0; i < 4; i++) {
-        if (x + x_arr_arg[i] - 1 == max_height[y + y_arr_arg[i]]) {
+        int check_x = x + x_arr_arg[i] - 1;
+        // Touch the bottom
+        if (check_x < 0) {
           return true;
+        }
+        int check_y = y + y_arr_arg[i];
+        if ((check_x >= 0) && (check_x < MAT_WIDTH) && (check_y >= 0) && (check_y < MAT_HEIGHT)) {
+          // Check if the space directly beneath each block pixel is occupied
+          if (picture[check_x][check_y]) {
+            return true;
+          }
         }
       }
       return false;
