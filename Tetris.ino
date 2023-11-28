@@ -24,6 +24,10 @@ RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, false);
 // the following functions are for printing messages
 void game_over();
 void game_start();
+void print_restart();
+void choose_restart();
+void print_quit();
+void choose_quit();
 
 class Color {
   public:
@@ -179,6 +183,11 @@ class Block {
           rotate();
         }
       }
+    }
+
+    // Stop the block falling
+    void stop() {
+      falling = false;
     }
 
     // Getters
@@ -339,6 +348,9 @@ class Game {
       // Generate a random number seed
       randomSeed(millis());
 
+      // Clear picture
+      clear_picture(picture);
+
       // Clear the blocks on the screen
       matrix.fillScreen(BLACK.to_333());
 
@@ -350,14 +362,105 @@ class Game {
       // Display "game start"
       game_start();
 
-      delay(2000);
+      delay(2000)
 
+      // Create the first block
+      block.reset();
     }
     
     // Modifies: global variable matrix
     void update(int potentiometer_value, bool button_pressed) {
-      
+      // Draw picture
+      draw_picture();
 
+      // Check for filled columns, if there is any column filled, then game over
+      for (int i = 0; i < MAT_HEIGHT; i++) {
+        if (max_height[i] == MAT_WIDTH - 1) {
+          // Print "game over"
+          game_over();
+          // Wait 3 seconds
+          delay(3000);
+          // Fill Screen with black
+          matrix.fillScreen(BLACK.to_333());
+          // Set seletion menu to be active
+          menu_active = true;
+        }
+      }
+
+      // Display selection menu if menu is active
+      if (menu_active == true){
+          draw_cursor(potentiometer_value);
+          if (button_pressed) {
+            // Restart selected
+            if (potentiometer_value < 512) {
+                setupGame(); 
+                menu_active = false;
+                return;
+            } 
+            else {
+              // Quit selected, enter an empty loop and pause
+              matrix.fillScreen(BLACK.to_333());
+              while (true) {}
+            }
+          }
+        // Slightly delay to prevent button jitter
+        delay(100); 
+      }
+      // Play the game as normal if menu is not active
+      else {
+        // Operate block when there is block falling
+        if (block.is_falling()) {
+          // Move block using value of the potentiometer
+          block.erase();
+          block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
+          Serial.print(block.get_y());
+          block.draw();
+
+          // Rotate block using button
+          if (button_pressed) {
+            block.rotate();
+          }
+
+          // Block falls
+          block.fall();
+
+          // Check if block touching the existing fallen blocks
+          if (is_touching(block)) {
+            // Stop the block falling
+            block.stop();
+
+            // Update max_height
+            int x = block_arg.get_x();
+            int y = block_arg.get_y();
+            int x_arr_arg[4] = {};
+            int y_arr_arg[4] = {};
+            block_arg.get_x_arr(x_arr_arg);
+            block_arg.get_y_arr(y_arr_arg);
+            for (int i = 0; i < 4; i++) {
+              picture[y + y_arr_arg[i]] = x + x_arr_arg[i];
+            }
+
+            // Add the block to picture
+            pic_add_block(block);
+
+            // Reset a new block
+            block.reset();
+          }
+        }
+        // No block is falling
+        else {
+          // Reset a new block
+          block.reset();
+        }
+
+        // Check and delete filled rows 
+        for (int i = 0; i < MAT_WIDTH; i++) {
+          if (is_row_filled(i)) {
+            pic_del_row(i);
+          }
+        }
+      }
+      time++;
     }
 
   private:
@@ -367,38 +470,105 @@ class Game {
     // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
     int picture[MAT_WIDTH][MAT_HEIGHT];
 
+    Block block;
+
+    bool menu_active = false;
+
+    // Draw the cursor for selecting Restart or Quit
+    void draw_cursor(int potentiometer_value_arg) {
+      if (potentiometer_value_arg < 512) {
+        // Cursor selected Restart
+        choose_restart();
+        print_quit();
+      }
+      else {
+        // Cursor selected Quit
+        choose_quit();
+        print_restart();
+      }
+    }
+
     // Draw the picture formed by stack of fallen blocks
-    void draw_picture(int pic_arg[MAT_WIDTH][MAT_HEIGHT]) {
+    void draw_picture() {
       for (int i = 0; i < MAT_WIDTH; i++) {
         for (int j = 0; j < MAT_HEIGHT; j++) {
           // Draw the pixel only when the color is not black
-          if (pic_arg[i][j] != 0) {
-            Color pixel_color = colors[pic_arg[i][j]];
+          if (picture[i][j] != 0) {
+            Color pixel_color = colors[picture[i][j]];
             matrix.drawPixel(i, j, pixel_color.to_333());
           }
         }
       }
     }
 
+    // Clear the picture formed by stack of fallen blocks
+    void clear_picture() {
+      for (int i = 0; i < MAT_WIDTH; i++) {
+        for (int j = 0; j < MAT_HEIGHT; j++) {
+          picture[i][j] = 0;
+          }
+        }
+      }
+    }
+
     // Add a block to picture
-    void pic_add_block(Block block_arg, int pic_arg[MAT_WIDTH][MAT_HEIGHT]) {
+    void pic_add_block(Block block_arg) {
+      // Get the (x, y) coordinate of the block
       int x = block_arg.get_x();
       int y = block_arg.get_y();
+      // Get the relative coordinates of all other pixels of the block
+      int x_arr_arg[4] = {};
+      int y_arr_arg[4] = {};
+      block_arg.get_x_arr(x_arr_arg);
+      block_arg.get_y_arr(y_arr_arg);
+      // Add the block coordinates and the corresponding color into picture
+      for (int i = 0; i < 4; i++) {
+        picture[x + x_arr_arg[i]][y + y_arr_arg[i]] = block_arg.get_color();
+      }
+    }
+
+    // Check if a row is filled
+    bool is_row_filled(int row) {
+      for (int i = 0; i < MAT_HEIGHT; i++) {
+        if (picture[row][i] == 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Delete a filled row from picture and update
+    void pic_del_row(int row) {
+      if (is_row_filled(row)) {
+        for (int j = row; j < MAT_WIDTH - 1; j++) {
+          for (int i = 0; i < MAT_HEIGHT; i++) {
+            // Move contents of the row above to the current row
+            picture[j][i] = picture[j + 1][i];
+          }
+        }
+        // Clear the top row
+        for (int i = 0; i < MAT_HEIGHT; i++) {
+          picture[MAT_WIDTH - 1][i] = 0;
+        }
+      }
+    }
+    
+    // Check if any block touches existing fallen blocks
+    bool is_touching(Block block_arg) {
+      // Get the (x, y) coordinate of the block
+      int x = block_arg.get_x();
+      int y = block_arg.get_y();
+      // Get the relative coordinates of all other pixels of the block
       int x_arr_arg[4] = {};
       int y_arr_arg[4] = {};
       block_arg.get_x_arr(x_arr_arg);
       block_arg.get_y_arr(y_arr_arg);
       for (int i = 0; i < 4; i++) {
-        pic_arg[x + x_arr_arg[i]][y + y_arr_arg[i]] = block_arg.get_color();
+        if (x + x_arr_arg[i] - 1 = max_height[y + y_arr_arg[i]]) {
+          return true;
+        }
       }
-    }
-    
-    // Create a new block
-    Block new_block() {
-      Block block;
-      // Set the block randomly
-      block.reset();
-      return block;
+      return false;
     }
 };
 
@@ -455,5 +625,33 @@ void game_start() {
   matrix.print('A');
   matrix.print('R');
   matrix.print('T');
+}
+
+// Display "R" in white for Restart
+void print_restart() {
+  matrix.setTextColor(WHITE.to_333());
+  matrix.setCursor(0, 0);
+  matrix.print("R");
+}
+
+// Display "R" in yellow for user to select Restart
+void choose_restart() {
+  matrix.setTextColor(YELLOW.to_333());
+  matrix.setCursor(0, 0);
+  matrix.print("R");
+}
+
+// Display "Q" in white for Quit
+void print_quit() {
+  matrix.setTextColor(WHITE.to_333());
+  matrix.setCursor(0, 8);
+  matrix.print("Q");
+}
+
+// Display "Q" in yellow for user to select Quit
+void choose_quit() {
+  matrix.setTextColor(YELLOW.to_333());
+  matrix.setCursor(0, 8);
+  matrix.print("Q");
 }
 
