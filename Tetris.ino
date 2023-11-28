@@ -354,11 +354,6 @@ class Game {
       // Clear the blocks on the screen
       matrix.fillScreen(BLACK.to_333());
 
-      // Reset max_height recording the maximum height of each column
-      for (int i = 0; i < MAT_HEIGHT; i++) {
-        max_height[MAT_HEIGHT] = 0;
-      }
-
       // Display "game start"
       game_start();
 
@@ -375,7 +370,8 @@ class Game {
 
       // Check for filled columns, if there is any column filled, then game over
       for (int i = 0; i < MAT_HEIGHT; i++) {
-        if (max_height[i] == MAT_WIDTH - 1) {
+        // Game over when touching the top of the screen
+        if (is_touching_top()) {
           // Print "game over"
           game_over();
           // Wait 3 seconds
@@ -431,17 +427,6 @@ class Game {
             // Stop the block falling
             block.stop();
 
-            // Update max_height
-            int x = block.get_x();
-            int y = block.get_y();
-            int x_arr_arg[4] = {};
-            int y_arr_arg[4] = {};
-            block.get_x_arr(x_arr_arg);
-            block.get_y_arr(y_arr_arg);
-            for (int i = 0; i < 4; i++) {
-              max_height[y + y_arr_arg[i]] = x + x_arr_arg[i];
-            }
-
             // Add the block to picture
             pic_add_block(block);
 
@@ -467,8 +452,6 @@ class Game {
 
   private:
     unsigned long time;
-    // Record the max height of each column
-    int max_height[MAT_HEIGHT];
     // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
     int picture[MAT_WIDTH][MAT_HEIGHT];
 
@@ -538,6 +521,16 @@ class Game {
       return true;
     }
 
+    // Check if any block reach the top of the screen
+    bool is_touching_top() {
+      for (int i = 0; i < MAT_HEIGHT; i++) {
+        if (picture[31][i] != 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     // Delete a filled row from picture and update
     void pic_del_row(int row) {
       if (is_row_filled(row)) {
@@ -554,7 +547,7 @@ class Game {
       }
     }
     
-    // Check if any block touches existing fallen blocks
+    // Check if any block touches existing fallen blocks or the bottom of the screen
     bool is_touching(Block block_arg) {
       // Get the (x, y) coordinate of the block
       int x = block_arg.get_x();
