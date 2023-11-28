@@ -349,7 +349,7 @@ class Game {
       randomSeed(millis());
 
       // Clear picture
-      clear_picture(picture);
+      clear_picture();
 
       // Clear the blocks on the screen
       matrix.fillScreen(BLACK.to_333());
@@ -362,7 +362,7 @@ class Game {
       // Display "game start"
       game_start();
 
-      delay(2000)
+      delay(2000);
 
       // Create the first block
       block.reset();
@@ -430,14 +430,14 @@ class Game {
             block.stop();
 
             // Update max_height
-            int x = block_arg.get_x();
-            int y = block_arg.get_y();
+            int x = block.get_x();
+            int y = block.get_y();
             int x_arr_arg[4] = {};
             int y_arr_arg[4] = {};
-            block_arg.get_x_arr(x_arr_arg);
-            block_arg.get_y_arr(y_arr_arg);
+            block.get_x_arr(x_arr_arg);
+            block.get_y_arr(y_arr_arg);
             for (int i = 0; i < 4; i++) {
-              picture[y + y_arr_arg[i]] = x + x_arr_arg[i];
+              max_height[y + y_arr_arg[i]] = x + x_arr_arg[i];
             }
 
             // Add the block to picture
@@ -506,7 +506,6 @@ class Game {
       for (int i = 0; i < MAT_WIDTH; i++) {
         for (int j = 0; j < MAT_HEIGHT; j++) {
           picture[i][j] = 0;
-          }
         }
       }
     }
@@ -564,7 +563,7 @@ class Game {
       block_arg.get_x_arr(x_arr_arg);
       block_arg.get_y_arr(y_arr_arg);
       for (int i = 0; i < 4; i++) {
-        if (x + x_arr_arg[i] - 1 = max_height[y + y_arr_arg[i]]) {
+        if (x + x_arr_arg[i] - 1 == max_height[y + y_arr_arg[i]]) {
           return true;
         }
       }
