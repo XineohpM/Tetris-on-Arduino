@@ -421,8 +421,10 @@ class Game {
             block.rotate();
           }
 
-          // Block falls
-          block.fall();
+          // Block falls every 20 loops, with an initial delay of 100 loops
+          if ((time % 20 == 0) && (time > 100)) {
+            block.fall();
+          }
 
           // Check if block touching the existing fallen blocks
           if (is_touching(block)) {
