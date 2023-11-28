@@ -174,7 +174,7 @@ class Block {
 
     // Set the rotation of the block
     void set_rot(int rot_index_arg) {
-      if ((rot_index_arg >= 0) && (rot_index_arg < 4) {
+      if ((rot_index_arg >= 0) && (rot_index_arg < 4)) {
         while (rot_index <= rot_index_arg) {
           rotate();
         }
@@ -382,8 +382,8 @@ class Game {
 
     // Add a block to picture
     void pic_add_block(Block block_arg, int pic_arg[MAT_WIDTH][MAT_HEIGHT]) {
-      x = block_arg.get_x();
-      y = block_arg.get_y();
+      int x = block_arg.get_x();
+      int y = block_arg.get_y();
       int x_arr_arg[4] = {};
       int y_arr_arg[4] = {};
       block_arg.get_x_arr(x_arr_arg);
