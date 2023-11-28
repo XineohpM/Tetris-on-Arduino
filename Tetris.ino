@@ -23,6 +23,7 @@ RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, false);
 
 // the following functions are for printing messages
 void game_over();
+void game_start();
 
 class Color {
   public:
@@ -83,6 +84,7 @@ class Block {
       type = 0;
       color_index = 0;
       rot_index = 0;
+      falling = false;
     }
 
     // Setters
@@ -153,7 +155,8 @@ class Block {
           y_arr[0] = 0;
           y_arr[1] = -1;
           y_arr[2] = -1;
-          y_arr[2] = -2;
+          y_arr[3] = -2;
+          break;
         // Other cases
         default:
           for (int i = 0; i < 4; i++) {
@@ -171,9 +174,10 @@ class Block {
 
     // Set the rotation of the block
     void set_rot(int rot_index_arg) {
-      rot_index = rot_index_arg;
-      for (int i = 0; i < rot_index; i++) {
-        rotate();
+      if ((rot_index_arg >= 0) && (rot_index_arg < 4) {
+        while (rot_index <= rot_index_arg) {
+          rotate();
+        }
       }
     }
 
@@ -183,17 +187,46 @@ class Block {
       return y;
     }
 
+    // Get the x-coordinate of the block
+    int get_x() const{
+      return x;
+    }
+
     // Get the status of the block, check if any block is falling
-    bool is_falling() {
+    bool is_falling() const{
       return falling;
+    }
+
+    // Get the color index of the block
+    int get_color() const{
+      return color_index;
+    }
+
+    // Get the rotation index of the block
+    int get_rot() const{
+      return rot_index;
+    }
+
+    // Get x_arr of the block
+    void get_x_arr(int x_arr_arg[4]) {
+      for (int i = 0; i < 4; i++) {
+        x_arr_arg[i] = x_arr[i];
+      }
+    }
+
+    // Get y_arr of the block
+    void get_y_arr(int y_arr_arg[4]) {
+      for (int i = 0; i < 4; i++) {
+        y_arr_arg[i] = y_arr[i];
+      }
     }
 
     // Reset the block
     void reset() {
-      type = random(1, 5);
-      color_index = random(1, 10);
-      rot_index = random(1, 4);
-      y = random(0, MAT_HEIGHT);
+      set_type(random(1, 6));
+      set_color(random(1, 10));
+      set_rot(random(1, 4));
+      set_y(random(0, MAT_HEIGHT));
       x = MAT_WIDTH - 1;
       falling = true;
     }
@@ -239,6 +272,8 @@ class Block {
             x_arr[i] = temp_x_arr[i];
             y_arr[i] = temp_y_arr[i];
           }
+          rot_index++;
+          rot_index %= 4;
         }
       }
     }
@@ -254,7 +289,7 @@ class Block {
     int type;
     // Mark the color of the block
     int color_index;
-    // Mark the rotation of the block
+    // Mark the rotation of the block, 0 <= rot_index < 3
     int rot_index;
     // Check if the block is falling
     bool falling;
@@ -311,6 +346,12 @@ class Game {
       for (int i = 0; i < MAT_HEIGHT; i++) {
         max_height[MAT_HEIGHT] = 0;
       }
+
+      // Display "game start"
+      game_start();
+
+      delay(2000);
+
     }
     
     // Modifies: global variable matrix
@@ -321,8 +362,44 @@ class Game {
 
   private:
     unsigned long time;
-    Block block;
+    // Record the max height of each column
     int max_height[MAT_HEIGHT];
+    // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
+    int picture[MAT_WIDTH][MAT_HEIGHT];
+
+    // Draw the picture formed by stack of fallen blocks
+    void draw_picture(int pic_arg[MAT_WIDTH][MAT_HEIGHT]) {
+      for (int i = 0; i < MAT_WIDTH; i++) {
+        for (int j = 0; j < MAT_HEIGHT; j++) {
+          // Draw the pixel only when the color is not black
+          if (pic_arg[i][j] != 0) {
+            Color pixel_color = colors[pic_arg[i][j]];
+            matrix.drawPixel(i, j, pixel_color.to_333());
+          }
+        }
+      }
+    }
+
+    // Add a block to picture
+    void pic_add_block(Block block_arg, int pic_arg[MAT_WIDTH][MAT_HEIGHT]) {
+      x = block_arg.get_x();
+      y = block_arg.get_y();
+      int x_arr_arg[4] = {};
+      int y_arr_arg[4] = {};
+      block_arg.get_x_arr(x_arr_arg);
+      block_arg.get_y_arr(y_arr_arg);
+      for (int i = 0; i < 4; i++) {
+        pic_arg[x + x_arr_arg[i]][y + y_arr_arg[i]] = block_arg.get_color();
+      }
+    }
+    
+    // Create a new block
+    Block new_block() {
+      Block block;
+      // Set the block randomly
+      block.reset();
+      return block;
+    }
 };
 
 // a global variable that represents the game Tetris
@@ -346,5 +423,37 @@ void loop() {
 
 // displays "game over"
 void game_over() {
+  matrix.fillScreen(BLACK.to_333());
+  matrix.setTextSize(1);
+  matrix.setTextColor(RED.to_333());
+  matrix.setCursor(0, 0); 
+  matrix.print('G');
+  matrix.print('A');
+  matrix.print('M');
+  matrix.print('E');
+  matrix.print(' ');
+  matrix.print('O');
+  matrix.print('V');
+  matrix.print('E');
+  matrix.print('R');
+  matrix.print('!');
+}
+
+// displays "game start"
+void game_start() {
+  matrix.fillScreen(BLACK.to_333());
+  matrix.setTextSize(1);
+  matrix.setTextColor(GREEN.to_333());
+  matrix.setCursor(0, 0); 
+  matrix.print('G');
+  matrix.print('A');
+  matrix.print('M');
+  matrix.print('E');
+  matrix.print(' ');
+  matrix.print('S');
+  matrix.print('T');
+  matrix.print('A');
+  matrix.print('R');
+  matrix.print('T');
 }
 
