@@ -306,7 +306,7 @@ class Block {
     // Check if the block is in the screen
     bool x_in_range(int x_arr_arg[4]) {
       for (int i = 0; i < 4; i++) {
-        if ((x_arr_arg[i] >= MAT_WIDTH) || (x_arr_arg[i] < 0)) {
+        if ((x + x_arr_arg[i] >= MAT_WIDTH) || (x + x_arr_arg[i] < 0)) {
           return false;
         }
       }
@@ -315,7 +315,7 @@ class Block {
 
     bool y_in_range(int y_arr_arg[4]) {
       for (int i = 0; i < 4; i++) {
-        if ((y_arr_arg[i] >= MAT_HEIGHT) || (y_arr_arg[i] < 0)) {
+        if ((y + y_arr_arg[i] >= MAT_HEIGHT) || (y + y_arr_arg[i] < 0)) {
           return false;
         }
       }
