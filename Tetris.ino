@@ -173,7 +173,9 @@ class Block {
 
     // Set the color of the block
     void set_color(int color_index_arg) {
-      color_index = color_index_arg;
+      if ((color_index_arg >= 0) && (color_index_arg < 9)) {
+        color_index = color_index_arg;
+      }
     }
 
     // Set the rotation of the block
@@ -232,11 +234,21 @@ class Block {
 
     // Reset the block
     void reset() {
-      set_type(random(1, 6));
-      set_color(random(1, 10));
-      set_rot(random(1, 4));
-      set_y(random(0, MAT_HEIGHT));
       x = MAT_WIDTH - 1;
+      y = 0;
+      type = 0;
+      color_index = 0;
+      rot_index = 0;
+      falling = false;
+      
+      // 1-O, 2-I, 3-L, 4-T, 5-Z
+      set_type(random(1, 6));
+      // colors[9] = {BLACK, RED, ORANGE, YELLOW, LIME, GREEN, AQUA, BLUE, PURPLE}
+      // 1, 2, 3, 4, 5, 6, 7, 8
+      set_color(random(1, 9));
+      // 0, 1, 2, 3
+      set_rot(random(0, 4));
+      set_y(random(0, MAT_HEIGHT));
       falling = true;
     }
 
@@ -255,7 +267,6 @@ class Block {
 
     // Move the block
     void fall() {
-      // MAT_WIDTH = 32, MAT_HEIGHT = 16
       if (x_in_range(x_arr) && y_in_range(y_arr)) {
         erase();
         x--;
