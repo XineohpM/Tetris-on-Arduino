@@ -379,6 +379,9 @@ class Game {
     
     // Modifies: global variable matrix
     void update(int potentiometer_value, bool button_pressed) {
+      Serial.println("Update called");
+      Serial.println(block.get_x());
+
       // Draw picture
       draw_picture();
 
@@ -602,6 +605,7 @@ void setup() {
 
 // see https://www.arduino.cc/reference/en/language/structure/sketch/loop/
 void loop() {
+  Serial.println("Loop running");
   // Smooth the readings from an analog input
   int total = 0;
   int num_readings = 10;
