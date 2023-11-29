@@ -172,7 +172,7 @@ class Block {
     }
 
     // Set the color of the block
-    void set_color(int color_index_arg) {
+    void set_color(uint8_t color_index_arg) {
       if ((color_index_arg >= 0) && (color_index_arg < 9)) {
         color_index = color_index_arg;
       }
@@ -308,7 +308,7 @@ class Block {
     // Mark the type of the block
     int type;
     // Mark the color of the block
-    int color_index;
+    uint8_t color_index;
     // Mark the rotation of the block, 0 <= rot_index < 3
     int rot_index;
     // Check if the block is falling
@@ -469,7 +469,7 @@ class Game {
   private:
     unsigned long time;
     // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
-    int picture[MAT_WIDTH][MAT_HEIGHT];
+    uint8_t picture[MAT_WIDTH][MAT_HEIGHT];
 
     Block block;
 
