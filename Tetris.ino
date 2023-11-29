@@ -239,7 +239,6 @@ class Block {
       type = 0;
       color_index = 0;
       rot_index = 0;
-      falling = false;
 
       // 1-O, 2-I, 3-L, 4-T, 5-Z
       set_type(random(1, 6));
@@ -372,8 +371,8 @@ class Game {
 
       // Display "game start"
       game_start();
-
       delay(2000);
+      matrix.fillScreen(BLACK.to_333());
 
       // Create the first block
       block.reset();
