@@ -260,8 +260,7 @@ class Block {
 
     // Erase the block
     void erase() {
-      set_color(0);
-      draw_with_rgb(colors[color_index]);
+      draw_with_rgb(colors[0]);
     }
 
     // Move the block
@@ -432,13 +431,13 @@ class Game {
             block.rotate();
           }
 
-          // Block falls every 20 loops, with an initial delay of 100 loops
-          if ((time % 20 == 0) && (time > 100)) {
+          // Block falls every 20 loops, with an initial delay of 50 loops
+          if ((time % 20 == 0) && (time > 50)) {
             block.fall();
           }
 
           // Check if block touching the existing fallen blocks
-          if (is_touching(block)) {
+          if (is_touching()) {
             // Stop the block falling
             block.stop();
 
@@ -562,16 +561,16 @@ class Game {
       }
     }
     
-    // Check if any block touches existing fallen blocks or the bottom of the screen
-    bool is_touching(Block block_arg) {
+    // Check if block touches existing fallen blocks or the bottom of the screen
+    bool is_touching() {
       // Get the (x, y) coordinate of the block
-      int x = block_arg.get_x();
-      int y = block_arg.get_y();
+      int x = block.get_x();
+      int y = block.get_y();
       // Get the relative coordinates of all other pixels of the block
       int x_arr_arg[4] = {};
       int y_arr_arg[4] = {};
-      block_arg.get_x_arr(x_arr_arg);
-      block_arg.get_y_arr(y_arr_arg);
+      block.get_x_arr(x_arr_arg);
+      block.get_y_arr(y_arr_arg);
       for (int i = 0; i < 4; i++) {
         int check_x = x + x_arr_arg[i] - 1;
         // Touch the bottom
