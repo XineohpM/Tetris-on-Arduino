@@ -103,7 +103,7 @@ class Block {
     }
 
     // Set the type of the block
-    void set_type(int type_arg) {
+    void set_type(uint8_t type_arg) {
       type = type_arg;
       switch (type) {
         // O_Block
@@ -179,7 +179,7 @@ class Block {
     }
 
     // Set the rotation of the block
-    void set_rot(int rot_index_arg) {
+    void set_rot(uint8_t rot_index_arg) {
       if ((rot_index_arg >= 0) && (rot_index_arg < 4)) {
         while (rot_index <= rot_index_arg) {
           rotate();
@@ -209,12 +209,12 @@ class Block {
     }
 
     // Get the color index of the block
-    int get_color() const{
+    uint8_t get_color() const{
       return color_index;
     }
 
     // Get the rotation index of the block
-    int get_rot() const{
+    uint8_t get_rot() const{
       return rot_index;
     }
 
@@ -306,11 +306,11 @@ class Block {
     int x_arr[4];
     int y_arr[4];
     // Mark the type of the block
-    int type;
+    uint8_t type;
     // Mark the color of the block
     uint8_t color_index;
     // Mark the rotation of the block, 0 <= rot_index < 3
-    int rot_index;
+    uint8_t rot_index;
     // Check if the block is falling
     bool falling;
 
@@ -682,4 +682,3 @@ void choose_quit() {
   matrix.setCursor(0, 8);
   matrix.print("Q");
 }
-
