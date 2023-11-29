@@ -240,7 +240,7 @@ class Block {
       color_index = 0;
       rot_index = 0;
       falling = false;
-      
+
       // 1-O, 2-I, 3-L, 4-T, 5-Z
       set_type(random(1, 6));
       // colors[9] = {BLACK, RED, ORANGE, YELLOW, LIME, GREEN, AQUA, BLUE, PURPLE}
@@ -335,8 +335,10 @@ class Block {
 
     // Draw the pixel with given color
     void draw_with_rgb(Color color) {
-      for (int i = 0; i < 4; i++) {
-        matrix.drawPixel(x + x_arr[i], y + y_arr[i], color.to_333());
+      if (x_in_range(x_arr) && y_in_range(y_arr)) {
+        for (int i = 0; i < 4; i++) {
+          matrix.drawPixel(x + x_arr[i], y + y_arr[i], color.to_333());
+        }
       }
     }
 };
@@ -348,6 +350,9 @@ class Game {
   public:
     Game() {
       time = 0;
+      clear_picture();
+      menu_active = false;
+      block = Block();
     }
     
     // sets up a new game of Tetris
