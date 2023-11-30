@@ -181,8 +181,13 @@ class Block {
     // Set the rotation of the block
     void set_rot(uint8_t rot_index_arg) {
       if ((rot_index_arg >= 0) && (rot_index_arg < 4)) {
-        while (rot_index <= rot_index_arg) {
-          rotate();
+        while (rot_index < rot_index_arg) {
+          if (check_rotate()) {
+            rotate();
+          }
+          else {
+            break;
+          }
         }
       }
     }
@@ -246,7 +251,7 @@ class Block {
       // 1, 2, 3, 4, 5, 6, 7, 8
       set_color(random(1, 9));
       // 0, 1, 2, 3
-      set_rot(random(0, 4));
+      set_rot(random(0, 4)); 
       set_y(random(0, MAT_HEIGHT));
       falling = true;
     }
@@ -277,20 +282,19 @@ class Block {
 
     // Rotate the block
     void rotate() {
-      int temp_x_arr[4];
-      int temp_y_arr[4];
-      for (int i = 0; i < 4; i++) {
-        temp_x_arr[i] = 0 - y_arr[i];
-        temp_y_arr[i] = x_arr[i];
-      }
       // Rotate only if the block after rotation is in the screen
-      if (x_in_range(temp_x_arr) && y_in_range(temp_y_arr)) {
+      if (check_rotate()) {
+        int temp_x_arr[4];
+        int temp_y_arr[4];
+        for (int i = 0; i < 4; i++) {
+          temp_x_arr[i] = 0 - y_arr[i];
+          temp_y_arr[i] = x_arr[i];
+        }
         for (int i = 0; i < 4; i++) {
           x_arr[i] = temp_x_arr[i];
           y_arr[i] = temp_y_arr[i];
         }
-        rot_index++;
-        rot_index %= 4;
+        rot_index = (rot_index + 1) % 4;
       }
     }
 
@@ -309,6 +313,17 @@ class Block {
     uint8_t rot_index;
     // Check if the block is falling
     bool falling;
+
+    // Check whether the block can rotate or not
+    bool check_rotate() {
+      int temp_x_arr[4];
+      int temp_y_arr[4];
+      for (int i = 0; i < 4; i++) {
+        temp_x_arr[i] = 0 - y_arr[i];
+        temp_y_arr[i] = x_arr[i];
+      }
+      return x_in_range(temp_x_arr) && y_in_range(temp_y_arr);
+    }
 
     // Check if the block is in the screen
     bool x_in_range(int x_arr_arg[4]) {
@@ -370,7 +385,7 @@ class Game {
       game_start();
       delay(2000);
       matrix.fillScreen(BLACK.to_333());
-
+  
       // Create the first block
       block.reset();
     }
@@ -421,6 +436,7 @@ class Game {
           // Move block using value of the potentiometer
           block.erase();
           block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
+          Serial.println(block.get_y());
           block.draw();
 
           // Rotate block using button
