@@ -506,11 +506,8 @@ class Game {
     void draw_picture() {
       for (int i = 0; i < MAT_WIDTH; i++) {
         for (int j = 0; j < MAT_HEIGHT; j++) {
-          // Draw the pixel only when the color is not black
-          if (picture[i][j] != 0) {
-            Color pixel_color = colors[picture[i][j]];
-            matrix.drawPixel(i, j, pixel_color.to_333());
-          }
+          Color pixel_color = colors[picture[i][j]];
+          matrix.drawPixel(i, j, pixel_color.to_333());
         }
       }
     }
