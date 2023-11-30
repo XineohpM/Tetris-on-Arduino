@@ -181,7 +181,7 @@ class Block {
     // Set the rotation of the block
     void set_rot(uint8_t rot_index_arg) {
       if ((rot_index_arg >= 0) && (rot_index_arg < 4)) {
-        while (rot_index < rot_index_arg) {
+        while (rot_index != rot_index_arg) {
           if (check_rotate()) {
             rotate();
           }
@@ -284,6 +284,7 @@ class Block {
     void rotate() {
       // Rotate only if the block after rotation is in the screen
       if (check_rotate()) {
+        erase();
         int temp_x_arr[4];
         int temp_y_arr[4];
         for (int i = 0; i < 4; i++) {
@@ -294,6 +295,7 @@ class Block {
           x_arr[i] = temp_x_arr[i];
           y_arr[i] = temp_y_arr[i];
         }
+        draw();
         rot_index = (rot_index + 1) % 4;
       }
     }
@@ -401,8 +403,8 @@ class Game {
         if (is_touching_top()) {
           // Print "game over"
           game_over();
-          // Wait 3 seconds
-          delay(3000);
+          // Wait 2 seconds
+          delay(2000);
           // Fill Screen with black
           matrix.fillScreen(BLACK.to_333());
           // Set seletion menu to be active
@@ -571,6 +573,7 @@ class Game {
         for (int i = 0; i < MAT_HEIGHT; i++) {
           picture[MAT_WIDTH - 1][i] = 0;
         }
+        draw_picture();
       }
     }
     
