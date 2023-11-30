@@ -277,22 +277,20 @@ class Block {
 
     // Rotate the block
     void rotate() {
-      if (falling) {
-        int temp_x_arr[4];
-        int temp_y_arr[4];
+      int temp_x_arr[4];
+      int temp_y_arr[4];
+      for (int i = 0; i < 4; i++) {
+        temp_x_arr[i] = 0 - y_arr[i];
+        temp_y_arr[i] = x_arr[i];
+      }
+      // Rotate only if the block after rotation is in the screen
+      if (x_in_range(temp_x_arr) && y_in_range(temp_y_arr)) {
         for (int i = 0; i < 4; i++) {
-          temp_x_arr[i] = 0 - y_arr[i];
-          temp_y_arr[i] = x_arr[i];
+          x_arr[i] = temp_x_arr[i];
+          y_arr[i] = temp_y_arr[i];
         }
-        // Rotate only if the block after rotation is in the screen
-        if (x_in_range(temp_x_arr) && y_in_range(temp_y_arr)) {
-          for (int i = 0; i < 4; i++) {
-            x_arr[i] = temp_x_arr[i];
-            y_arr[i] = temp_y_arr[i];
-          }
-          rot_index++;
-          rot_index %= 4;
-        }
+        rot_index++;
+        rot_index %= 4;
       }
     }
 
