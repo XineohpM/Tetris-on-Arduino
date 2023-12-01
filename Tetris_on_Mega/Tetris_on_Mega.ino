@@ -640,7 +640,7 @@ void loop() {
   int total = 0;
   int num_readings = 30;
   for (int i = 0; i < num_readings; i++) {
-    total += analogRead(POTENTIOMETER_PIN_NUMBER);
+    total += digitalRead(POTENTIOMETER_PIN_NUMBER);
   }  
   int potentiometer_value = total / num_readings;
 
