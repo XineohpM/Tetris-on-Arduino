@@ -401,6 +401,8 @@ class Game {
       for (int i = 0; i < MAT_HEIGHT; i++) {
         // Game over when touching the top of the screen
         if (is_touching_top()) {
+          // Clear picture to avoid infinite loop
+          clear_picture();
           // Print "game over"
           game_over();
           // Wait 2 seconds
@@ -409,11 +411,12 @@ class Game {
           matrix.fillScreen(BLACK.to_333());
           // Set seletion menu to be active
           menu_active = true;
+          break;
         }
       }
 
       // Display selection menu if menu is active
-      if (menu_active == true){
+      if (menu_active == true) {
           draw_cursor(potentiometer_value);
           if (button_pressed) {
             // Restart selected
@@ -437,8 +440,10 @@ class Game {
         if (block.is_falling()) {
           // Move block using value of the potentiometer
           block.erase();
-          block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
-          Serial.println(block.get_y());
+          // Check if the block can be moved without touching other blocks
+          if (check_move(potentiometer_value)) {
+            block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
+          }
           block.draw();
 
           // Rotate block using button
@@ -537,6 +542,22 @@ class Game {
       }
     }
 
+    // Check if the block can be moved left and right by the potentiometer
+    bool check_move(int potentiometer_value_arg) {
+      int check_y = ((MAT_HEIGHT) * potentiometer_value_arg) / 1024;
+      int x_arr_arg[4] = {};
+      int y_arr_arg[4] = {};
+      block.get_x_arr(x_arr_arg);
+      block.get_y_arr(y_arr_arg);
+      for (int k = 0; k < 4; k++) {
+        if ((picture[block.get_x() + x_arr_arg[k]][check_y + y_arr_arg[k]] != 0)
+            || (check_y + y_arr_arg[k] < 0) || (check_y + y_arr_arg[k] >= MAT_HEIGHT)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     // Check if a row is filled
     bool is_row_filled(int row) {
       for (int i = 0; i < MAT_HEIGHT; i++) {
@@ -617,7 +638,7 @@ void setup() {
 void loop() {
   // Smooth the readings from an analog input
   int total = 0;
-  int num_readings = 10;
+  int num_readings = 30;
   for (int i = 0; i < num_readings; i++) {
     total += analogRead(POTENTIOMETER_PIN_NUMBER);
   }  
