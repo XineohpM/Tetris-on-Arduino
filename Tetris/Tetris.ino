@@ -3,8 +3,8 @@
 #include <Adafruit_GFX.h>
 
 // define the wiring of the LED screen
-const uint8_t CLK  = 11;
-const uint8_t LAT = 10;
+const uint8_t CLK  = 8;
+const uint8_t LAT = A3;
 const uint8_t OE = 9;
 const uint8_t A = A0;
 const uint8_t B = A1;
@@ -12,10 +12,7 @@ const uint8_t C = A2;
 
 // define the wiring of the inputs
 const int POTENTIOMETER_PIN_NUMBER = 5;
-const int BUTTON_PIN_NUMBER = 12;
-const int JOYSTICK_X = A14;
-const int JOYSTICK_Y = A13;
-const int JOYSTICK_SW = A15;
+const int BUTTON_PIN_NUMBER = 10;
 
 // Matrix Dimensions
 const uint8_t MAT_WIDTH = 32;
@@ -376,7 +373,6 @@ class Game {
     void setupGame() {
       // Initialize time
       time = 0;
-      joystick = true;
 
       // Generate a random number seed
       randomSeed(millis());
@@ -397,7 +393,7 @@ class Game {
     }
     
     // Modifies: global variable matrix
-    void update(int potentiometer_value, bool button_pressed, int x, int y, int sw) {
+    void update(int potentiometer_value, bool button_pressed) {
       // Draw picture
       draw_picture();
 
@@ -435,6 +431,8 @@ class Game {
               while (true) {}
             }
           }
+        // Slightly delay to prevent button jitter
+        delay(100); 
       }
       // Play the game as normal if menu is not active
       else {
@@ -443,39 +441,18 @@ class Game {
           // Move block using value of the potentiometer
           block.erase();
           // Check if the block can be moved without touching other blocks
-          if (joystick){
-            if (joystick_check_move(x)){
-              block.set_y(block.get_y()-x/256);
-            }
+          if (check_move(potentiometer_value)) {
+            block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
           }
-          else{
-            if (check_move(potentiometer_value)) {
-              block.set_y(((MAT_HEIGHT) * potentiometer_value) / 1024);
-            }
-          }
-
           block.draw();
 
           // Rotate block using button
-          if (button_pressed == true && previous_button == true){
-            button_count = false;
-          }
-          else if (button_pressed == true && previous_button == false){
-            button_count = true;
-          }
-          previous_button = button_pressed;
-          if (button_count) {
+          if (button_pressed) {
             block.rotate();
-            button_count = false;
           }
 
-          // Fall is divided by how much the Y joystick is pushed down
-          int fall = 15;
-          if (y > 20){
-            fall = (fall*100)/y;
-          }
           // Block falls every 20 loops, with an initial delay of 50 loops
-          if ((time % fall == 0) && (time > 50)) {
+          if ((time % 20 == 0) && (time > 50)) {
             block.fall();
           }
 
@@ -509,9 +486,6 @@ class Game {
 
   private:
     unsigned long time;
-    bool previous_button;
-    bool button_count;
-    bool joystick;
     // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
     uint8_t picture[MAT_WIDTH][MAT_HEIGHT];
 
@@ -521,7 +495,6 @@ class Game {
 
     // Draw the cursor for selecting Restart or Quit
     void draw_cursor(int potentiometer_value_arg) {
-
       if (potentiometer_value_arg < 512) {
         // Cursor selected Restart
         choose_restart();
@@ -572,21 +545,6 @@ class Game {
     // Check if the block can be moved left and right by the potentiometer
     bool check_move(int potentiometer_value_arg) {
       int check_y = ((MAT_HEIGHT) * potentiometer_value_arg) / 1024;
-      int x_arr_arg[4] = {};
-      int y_arr_arg[4] = {};
-      block.get_x_arr(x_arr_arg);
-      block.get_y_arr(y_arr_arg);
-      for (int k = 0; k < 4; k++) {
-        if ((picture[block.get_x() + x_arr_arg[k]][check_y + y_arr_arg[k]] != 0)
-            || (check_y + y_arr_arg[k] < 0) || (check_y + y_arr_arg[k] >= MAT_HEIGHT)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    bool joystick_check_move(int x) {
-      int check_y = block.get_y()-(x/256);
       int x_arr_arg[4] = {};
       int y_arr_arg[4] = {};
       block.get_x_arr(x_arr_arg);
@@ -686,20 +644,11 @@ void loop() {
   }  
   int potentiometer_value = total / num_readings;
 
-  //Determines whether button is being held down
   bool button_pressed = (digitalRead(BUTTON_PIN_NUMBER) == HIGH);
 
-  int x = analogRead(JOYSTICK_X) - 512;
-  if (x >= 256){
-    x = 256;
-  }
-  if (x <= -256){
-    x = -256;
-  }
-  int y = analogRead(JOYSTICK_Y) - 512;
-  int sw = analogRead(JOYSTICK_SW);
-
-  game.update(potentiometer_value, button_pressed, x, y, sw);
+  game.update(potentiometer_value, button_pressed);
+  
+  delay(25);
 }
 
 // displays "game over"
