@@ -464,7 +464,7 @@ class Game {
             button_count = true;
           }
           previous_button = button_pressed;
-          if (button_count) {
+          if (button_count && check_block_rotate()) {
             block.rotate();
             button_count = false;
           }
@@ -567,6 +567,25 @@ class Game {
       for (int i = 0; i < 4; i++) {
         picture[x + x_arr_arg[i]][y + y_arr_arg[i]] = block_arg.get_color();
       }
+    }
+
+    // Check whether the block can rotate or not
+    bool check_block_rotate() {
+      int temp_x_arr[4] = {};
+      int temp_y_arr[4] = {};
+      int block_x_arr[4], block_y_arr[4];
+      block.get_x_arr(block_x_arr);
+      block.get_y_arr(block_y_arr);
+      for (int i = 0; i < 4; i++) {
+        temp_x_arr[i] = 0 - block_y_arr[i];
+        temp_y_arr[i] = block_x_arr[i];
+      }
+      for (int i = 0; i < 4; i++) {
+        if (picture[block.get_x() + temp_x_arr[i]][block.get_y() + temp_y_arr[i]] != 0) {
+          return false;
+        }
+      }
+      return true;
     }
 
     // Check if the block can be moved left and right by the potentiometer
