@@ -481,8 +481,8 @@ class Game {
 
           // Fall is divided by how much the Y joystick is pushed down
           int fall = 15;
-          if (y > 20){
-            fall = (fall*100)/y;
+          if (y > 20) {
+            fall = (fall * 100) / y;
           }
           // Block falls every 20 loops, with an initial delay of 50 loops
           if ((time % fall == 0) && (time > 50)) {
@@ -616,6 +616,7 @@ class Game {
       return true;
     }
 
+    // Check if the block can be moved left and right by the joystick
     bool joystick_check_move(int x) {
       int check_y = block.get_y()-(x/256);
       int x_arr_arg[4] = {};
@@ -721,10 +722,10 @@ void loop() {
   bool button_pressed = (digitalRead(BUTTON_PIN_NUMBER) == HIGH);
 
   int x = analogRead(JOYSTICK_X) - 512;
-  if (x >= 256){
+  if (x >= 256) {
     x = 256;
   }
-  if (x <= -256){
+  if (x <= -256) {
     x = -256;
   }
   int y = analogRead(JOYSTICK_Y) - 512;
