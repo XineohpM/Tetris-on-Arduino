@@ -303,7 +303,6 @@ class Block {
       }
     }
 
-
   private:
     int x;
     int y;
@@ -376,6 +375,8 @@ class Game {
     void setupGame() {
       // Initialize time
       time = 0;
+      menu_choice = true;
+      past_menu_choice = true;
       joystick = true;
 
       // Generate a random number seed
@@ -404,7 +405,7 @@ class Game {
       // Check for filled columns, if there is any column filled, then game over
       for (int i = 0; i < MAT_HEIGHT; i++) {
         // Game over when touching the top of the screen
-        if (is_touching_top()) {
+        if (is_touching_top() && !menu_active) {
           // Clear picture to avoid infinite loop
           clear_picture();
           // Print "game over"
@@ -413,6 +414,7 @@ class Game {
           delay(2000);
           // Fill Screen with black
           matrix.fillScreen(BLACK.to_333());
+          Serial.print("this is wiping the screen");
           // Set seletion menu to be active
           menu_active = true;
           break;
@@ -420,11 +422,16 @@ class Game {
       }
 
       // Display selection menu if menu is active
+      if (y < -300){
+        menu_choice = true;
+      }
+      else if (y > 300){
+        menu_choice = false;
+      }
       if (menu_active == true) {
-          draw_cursor(potentiometer_value);
-          if (button_pressed) {
-            // Restart selected
-            if (potentiometer_value < 512) {
+          draw_cursor(menu_choice, past_menu_choice);
+          if (button_pressed){
+            if (menu_choice) {
                 setupGame(); 
                 menu_active = false;
                 return;
@@ -435,6 +442,7 @@ class Game {
               while (true) {}
             }
           }
+        past_menu_choice = menu_choice;
       }
       // Play the game as normal if menu is not active
       else {
@@ -512,6 +520,8 @@ class Game {
     bool previous_button;
     bool button_count;
     bool joystick;
+    bool menu_choice;
+    bool past_menu_choice;
     // The picture formed by stack of fallen blocks, this array stores the color index of each pixel
     uint8_t picture[MAT_WIDTH][MAT_HEIGHT];
 
@@ -520,17 +530,17 @@ class Game {
     bool menu_active = false;
 
     // Draw the cursor for selecting Restart or Quit
-    void draw_cursor(int potentiometer_value_arg) {
-
-      if (potentiometer_value_arg < 512) {
-        // Cursor selected Restart
-        choose_restart();
-        print_quit();
-      }
-      else {
-        // Cursor selected Quit
-        choose_quit();
-        print_restart();
+    void draw_cursor(bool menu_choice, bool past_menu_choice) {
+      if (menu_choice != past_menu_choice){
+        if (menu_choice) {
+          choose_restart();
+          print_quit();
+        } 
+        else {
+          // Cursor selected Quit
+          choose_quit();
+          print_restart();
+        }
       }
     }
 
