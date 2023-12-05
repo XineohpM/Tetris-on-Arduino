@@ -400,7 +400,9 @@ class Game {
     // Modifies: global variable matrix
     void update(int potentiometer_value, bool button_pressed, int x, int y, int sw) {
       // Draw picture
-      draw_picture();
+      if (!menu_active) {
+        draw_picture();
+      }
 
       // Check for filled columns, if there is any column filled, then game over
       for (int i = 0; i < MAT_HEIGHT; i++) {
