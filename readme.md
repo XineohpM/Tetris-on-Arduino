@@ -2,11 +2,13 @@
 
 This Arduino sketch implements a Tetris game on an RGB LED Matrix. The game features basic Tetris gameplay, including block falling, rotation, and line clearing, with an interactive menu for restarting or quitting the game.
 
+There're two versions of the game: you can either play it with Arduino uno and a potentiometer, or with Arduino mega and a joystick!
+
 ## Hardware Requirements
 
 - RGB LED Matrix Panel
-- Arduino (compatible with Adafruit_GFX and RGBmatrixPanel libraries)
-- Potentiometer (for controlling block position)
+- Arduino (compatible with Adafruit_GFX and RGBmatrixPanel libraries, here we use Arduino uno and mega)
+- Potentiometer/Joystick (for controlling block position)
 - Press Button (for rotating blocks and menu selection)
 - Breadboard
 - Connecting wires
@@ -30,10 +32,10 @@ This Arduino sketch implements a Tetris game on an RGB LED Matrix. The game feat
 
 ## Gameplay
 
-- Rotate the potentiometer to move the falling block left or right.
+- Use the potentiometer/joystick to move the falling block left or right, with a joystick, pull it down to increase the falling speed of each block.
 - Press the button to rotate the block.
 - The game ends when blocks reach the top of the matrix.
-- After a game over, use the potentiometer and button to choose between restarting or quitting the game.
+- After a game over, use the potentiometer/joystick and button to choose between restarting or quitting the game.
 
 ## Functions Overview
 
